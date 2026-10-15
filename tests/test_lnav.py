@@ -1,4 +1,5 @@
 import json
+import shlex
 import shutil
 import subprocess
 from pathlib import Path
@@ -121,9 +122,11 @@ def lnav_env(tmp_path):
     config = Path(env["XDG_CONFIG_HOME"]) / "lnav"
     (config / "configs" / "deepwick").mkdir(parents=True)
     shutil.copy(THEME, config / "configs" / "deepwick" / "deepwick.json")
-    (config / "config.json").write_text('{"ui": {"theme": "deepwick"}}\n')
     log = tmp_path / "sample.log"
     log.write_text(SAMPLE)
+    # Activate the theme the way the README says.
+    subprocess.run(["lnav", "-n", "-c", ":config /ui/theme deepwick", str(log)],
+                   env={**env, "PATH": "/usr/bin:/bin"}, capture_output=True, text=True, check=True, timeout=30)
     return env, log
 
 
@@ -159,3 +162,24 @@ def test_lnav_renders_levels(tmp_path):
 
 def test_port_conventions():
     assert check_port(REPO, PALETTE.allowed_hex()) == []
+
+
+@pytest.mark.skipif(not (tmux_available() and shutil.which("lnav")), reason="requires tmux and lnav")
+def test_lnav_help_headings(tmp_path):
+    env, log = lnav_env(tmp_path)
+    out = capture(f"lnav {log}", env, size=(120, 40), wait_for="shutting down", keys=("?",), after="Overview", timeout=20)
+    heading = style_containing(line_with(out, "Overview"), "Overview")
+    assert (heading["fg"], heading["bold"]) == (C["blue"].lower(), True)
+
+
+@pytest.mark.skipif(not (tmux_available() and shutil.which("lnav")), reason="requires tmux and lnav")
+def test_lnav_sql_prompt_syntax(tmp_path):
+    env, log = lnav_env(tmp_path)
+    # :prompt pre-fills the SQL prompt; typing ';' and the query races lnav's mode switch.
+    command = shlex.join(["lnav", "-c", ":prompt sql ; 'SELECT \\'abc\\', 42 FROM t -- c'", str(log)])
+    out = capture(command, env, size=(120, 40), wait_for="-- c", timeout=20)
+    line = line_with(out, "'abc'")
+    assert style_containing(line, "'abc'")["fg"] == C["orange"].lower()
+    assert style_containing(line, "42")["fg"] == C["sage"].lower()
+    assert style_containing(line, "FROM")["fg"] == C["blue"].lower()
+    assert style_containing(line, "-- c")["fg"] == C["comment"].lower()

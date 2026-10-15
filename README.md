@@ -27,6 +27,8 @@ lnav saves the setting, so you only do this once.
 
 ## Notes
 
+- lnav's SQL help popup (shown while typing a `;` query) draws SQL keywords in
+  a fixed 256-color blue that themes can't change.
 - Colors need a terminal with 24-bit color.
 - Log levels follow the Deepwick diagnostics colors: errors Red (critical
   and fatal bold), warnings Yellow, notices Cyan, debug Comment, trace and
