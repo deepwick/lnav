@@ -111,6 +111,8 @@ def test_roles():
     assert theme()["syntax-styles"]["comment"] == {"color": "$comment", "italic": True}
     assert resolved("status-styles", "title") == {"color": C["background"], "background-color": C["blue"]}
     assert resolved("styles", "cursor-line") == {"color": C["foreground"], "background-color": C["selection"]}
+    assert theme()["status-styles"]["title-hotkey"].get("bold") is True
+    assert resolved("log-level-styles", "debug") == {"color": C["comment"]}
 
 
 def lnav_env(tmp_path):

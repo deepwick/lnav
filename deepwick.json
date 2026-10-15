@@ -102,7 +102,7 @@
           "active": { "color": "$green", "background-color": "$surface" },
           "inactive-alert": { "color": "$red", "background-color": "$overlay" },
           "inactive": { "color": "$muted", "background-color": "$overlay" },
-          "title-hotkey": { "color": "$background", "background-color": "$blue", "underline": true },
+          "title-hotkey": { "color": "$background", "background-color": "$blue", "bold": true, "underline": true },
           "title": { "color": "$background", "background-color": "$blue", "bold": true },
           "disabled-title": { "color": "$muted", "background-color": "$overlay", "bold": true },
           "subtitle": { "color": "$background", "background-color": "$light_blue" },

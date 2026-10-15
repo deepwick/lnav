@@ -29,7 +29,8 @@ lnav saves the setting, so you only do this once.
 
 - Colors need a terminal with 24-bit color.
 - Log levels follow the Deepwick diagnostics colors: errors Red (critical
-  and fatal bold), warnings Yellow, notices Cyan, debug and trace Muted.
+  and fatal bold), warnings Yellow, notices Cyan, debug Comment, trace and
+  debug2–5 Muted.
 - SQL and other syntax follow the Deepwick syntax roles: keywords Blue,
   strings Orange, numbers Sage, comments Comment italic.
 - lnav's default theme colors IP addresses and XML tags with a different
