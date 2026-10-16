@@ -38,7 +38,9 @@ SAMPLE = """\
 2026-10-14T12:00:03.000Z [ERROR] deepwick.db: query failed: "SELECT 1"
 2026-10-14T12:00:04.000Z [CRITICAL] deepwick.app: shutting down
 """
-requires_lnav = pytest.mark.skipif(shutil.which("lnav") is None, reason="requires lnav")
+LNAV = shutil.which("lnav")
+LNAV_PATH = f"{Path(LNAV).parent}:/usr/bin:/bin" if LNAV else "/usr/bin:/bin"
+requires_lnav = pytest.mark.skipif(LNAV is None, reason="requires lnav")
 
 
 
@@ -126,14 +128,14 @@ def lnav_env(tmp_path):
     log.write_text(SAMPLE)
     # Activate the theme the way the README says.
     subprocess.run(["lnav", "-n", "-c", ":config /ui/theme deepwick", str(log)],
-                   env={**env, "PATH": "/usr/bin:/bin"}, capture_output=True, text=True, check=True, timeout=30)
+                   env={**env, "PATH": LNAV_PATH}, capture_output=True, text=True, check=True, timeout=30)
     return env, log
 
 
 @requires_lnav
 def test_key_sets_match_installed_lnav(tmp_path):
     env, _ = lnav_env(tmp_path)
-    dump = json.loads(subprocess.run(["lnav", "-m", "config", "get"], env={**env, "PATH": "/usr/bin:/bin"},
+    dump = json.loads(subprocess.run(["lnav", "-m", "config", "get"], env={**env, "PATH": LNAV_PATH},
                                      capture_output=True, text=True, check=True).stdout)
     default = dump["ui"]["theme-defs"]["default"]
     for section, keys in SECTIONS.items():
@@ -143,7 +145,7 @@ def test_key_sets_match_installed_lnav(tmp_path):
 @requires_lnav
 def test_lnav_accepts_theme(tmp_path):
     env, log = lnav_env(tmp_path)
-    result = subprocess.run(["lnav", "-W", "-n", "-c", ":echo ok", str(log)], env={**env, "PATH": "/usr/bin:/bin"},
+    result = subprocess.run(["lnav", "-W", "-n", "-c", ":echo ok", str(log)], env={**env, "PATH": LNAV_PATH},
                             capture_output=True, text=True, timeout=30)
     output = result.stdout + result.stderr
     assert result.returncode == 0, output
